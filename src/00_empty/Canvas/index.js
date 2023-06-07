@@ -9,7 +9,12 @@ import { Mesh } from "three/src/objects/Mesh";
 import { Vector2 } from "three";
 
 export default class Canvas {
-  constructor() {
+  constructor(elementId) {
+    this.element = document.getElementById(elementId);
+    const rect = this.element.getBoundingClientRect();
+
+    console.log(rect);
+
     this.mouse = new Vector2(0, 0);
     this.scrollY = 0;
 
@@ -48,13 +53,26 @@ export default class Canvas {
     this.scene.add(this.light2);
 
     // const geo = new BoxGeometry(1, 1, 1);
-    const geo = new BoxGeometry(300, 300, 300);
+    // const geo = new BoxGeometry(300, 300, 300);
+
+    const depth = 300;
+    const geo = new BoxGeometry(rect.width, rect.height, depth);
 
     const mat = new MeshLambertMaterial({ color: 0xffffff });
 
     this.mesh = new Mesh(geo, mat);
-    this.mesh.rotation.x = Math.PI / 4;
-    this.mesh.rotation.y = Math.PI / 4;
+    // this.mesh.rotation.x = Math.PI / 4;
+    // this.mesh.rotation.y = Math.PI / 4;
+
+    // this.mesh.position.z = -depth / 2;
+
+    const center = new Vector2(
+      rect.x + rect.width / 2,
+      rect.y + rect.height / 2
+    );
+    const diff = new Vector2(center.x - this.w / 2, center.y - this.h / 2);
+    this.mesh.position.set(diff.x, -(diff.y + this.scrollY), -depth / 2);
+    this.offsetY = this.mesh.position.y;
 
     this.scene.add(this.mesh);
 
@@ -80,12 +98,12 @@ export default class Canvas {
       this.render();
     });
 
-    const sec = performance.now() / 1000;
+    // const sec = performance.now() / 1000;
 
-    this.mesh.rotation.x = sec * (Math.PI / 4);
-    this.mesh.rotation.y = sec * (Math.PI / 4);
+    // this.mesh.rotation.x = sec * (Math.PI / 4);
+    // this.mesh.rotation.y = sec * (Math.PI / 4);
 
-    this.mesh.position.y = this.scrollY * 0.5;
+    this.mesh.position.y = this.offsetY + this.scrollY;
 
     this.renderer.render(this.scene, this.camera);
   }
