@@ -36,12 +36,21 @@ export default class Canvas {
     // const geo = new PlaneGeometry(2, 2, 10, 10);
     const geo = new PlaneGeometry(2, 2, 1, 1);
 
+    this.mouse = new Vector2(0.5, 0.5);
+    this.targetRadius = 0.005;
+
     this.uniforms = {
       uAspect: {
         value: this.w / this.h,
       },
       uTime: {
         value: 0.0,
+      },
+      uMouse: {
+        value: new Vector2(0.5, 0.5),
+      },
+      uRadius: {
+        value: this.targetRadius,
       },
     };
 
@@ -63,6 +72,21 @@ export default class Canvas {
     this.render();
   }
 
+  mouseMoved(x, y) {
+    this.mouse.x = x / this.w;
+    this.mouse.y = 1.0 - y / this.h;
+  }
+
+  mousePressed(x, y) {
+    this.mouseMoved(x, y);
+    this.targetRadius = 0.25;
+  }
+
+  mouseReleased(x, y) {
+    this.mouseMoved(x, y);
+    this.targetRadius = 0.005;
+  }
+
   render() {
     // 次のフレームを要求
     requestAnimationFrame(() => {
@@ -73,6 +97,11 @@ export default class Canvas {
     const sec = performance.now() / 1000;
 
     this.uniforms.uTime.value = sec;
+
+    this.uniforms.uMouse.value.lerp(this.mouse, 0.2);
+
+    this.uniforms.uRadius.value +=
+      (this.targetRadius - this.uniforms.uRadius.value) * 0.2;
 
     // 画面に表示
     this.renderer.render(this.scene, this.camera);
