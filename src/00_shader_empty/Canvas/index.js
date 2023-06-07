@@ -36,12 +36,22 @@ export default class Canvas {
     // const geo = new PlaneGeometry(2, 2, 10, 10);
     const geo = new PlaneGeometry(2, 2, 1, 1);
 
+    this.uniforms = {
+      uAspect: {
+        value: this.w / this.h,
+      },
+      uTime: {
+        value: 0.0,
+      },
+    };
+
     // シェーダーソースを渡してマテリアルを作成
     const mat = new ShaderMaterial({
+      uniforms: this.uniforms,
       vertexShader: vertexSource,
       fragmentShader: fragmentSource,
       // wireframe: true
-      wireframe: false,
+      // wireframe: false,
     });
 
     this.mesh = new Mesh(geo, mat);
@@ -61,6 +71,8 @@ export default class Canvas {
 
     // ミリ秒から秒に変換
     const sec = performance.now() / 1000;
+
+    this.uniforms.uTime.value = sec;
 
     // 画面に表示
     this.renderer.render(this.scene, this.camera);
